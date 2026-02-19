@@ -17,7 +17,7 @@ class Partida extends Model
         'penaltis_casa',
         'time_visitante_id',
         'gols_visitante',
-        'pentaltis_visitante',
+        'penaltis_visitante',
         'data_criacao',
         'ativo',
         'fase_id'

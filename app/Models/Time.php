@@ -8,11 +8,16 @@ class Time extends Model
 {
     protected $table = 'times';
 
-    public $timestamps = false; // porque você NÃO tem created_at e updated_at
+    public $timestamps = false;
 
     protected $fillable = [
         'nome',
         'ativo',
         'data_criacao'
     ];
+
+    public function campeonatosTimes()
+    {
+        return $this->hasMany(CampeonatoTime::class, 'time_id');
+    }
 }

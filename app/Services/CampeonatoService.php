@@ -76,10 +76,9 @@ class CampeonatoService
         
         if($partidasCampeonato->count() > 0)
         {
-            foreach($partidasCampeonato as $partidaCampeonato)
-            {
-                DB::table('partidas')->where('id', $partidaCampeonato->id)->delete();
-            }
+            throw ValidationException::withMessages([
+                    'mensagem' => 'Campeonato já simulado'
+                ]);
         }
         
         $timesParticipantes = DB::table('campeonatos_times')
@@ -262,7 +261,16 @@ class CampeonatoService
                                               'penaltis_casa',
                                               'penaltis_visitante',
                                               'gols_visitante',
-                                              'time_visitante.nome as time_visitante')
+                                              'time_visitante.nome as time_visitante',
+                                              DB::raw("
+                                                  CASE
+                                                      WHEN partidas.gols_casa > partidas.gols_visitante THEN time_casa.nome
+                                                      WHEN partidas.gols_visitante > partidas.gols_casa THEN time_visitante.nome
+                                                      WHEN partidas.penaltis_casa > partidas.penaltis_visitante THEN time_casa.nome
+                                                      WHEN partidas.penaltis_visitante > partidas.penaltis_casa THEN time_visitante.nome
+                                                      ELSE 'Empate'
+                                                  END as vencedor
+                                              "))
                                      ->get();
 
         $resultadosSemifinais = DB::table('partidas')
@@ -275,7 +283,16 @@ class CampeonatoService
                                           'penaltis_casa',
                                           'penaltis_visitante',
                                           'gols_visitante',
-                                          'time_visitante.nome as time_visitante')
+                                          'time_visitante.nome as time_visitante',
+                                          DB::raw("
+                                              CASE
+                                                  WHEN partidas.gols_casa > partidas.gols_visitante THEN time_casa.nome
+                                                  WHEN partidas.gols_visitante > partidas.gols_casa THEN time_visitante.nome
+                                                  WHEN partidas.penaltis_casa > partidas.penaltis_visitante THEN time_casa.nome
+                                                  WHEN partidas.penaltis_visitante > partidas.penaltis_casa THEN time_visitante.nome
+                                                  ELSE 'Empate'
+                                              END as vencedor
+                                          "))
                                   ->get();
 
         $resultadosTerceiroLugar = DB::table('partidas')
@@ -288,7 +305,16 @@ class CampeonatoService
                                               'penaltis_casa',
                                               'penaltis_visitante',
                                               'gols_visitante',
-                                              'time_visitante.nome as time_visitante')
+                                              'time_visitante.nome as time_visitante',
+                                              DB::raw("
+                                                  CASE
+                                                      WHEN partidas.gols_casa > partidas.gols_visitante THEN time_casa.nome
+                                                      WHEN partidas.gols_visitante > partidas.gols_casa THEN time_visitante.nome
+                                                      WHEN partidas.penaltis_casa > partidas.penaltis_visitante THEN time_casa.nome
+                                                      WHEN partidas.penaltis_visitante > partidas.penaltis_casa THEN time_visitante.nome
+                                                      ELSE 'Empate'
+                                                  END as vencedor
+                                              "))
                                      ->get();
 
         $resultadosFinal = DB::table('partidas')
@@ -301,7 +327,16 @@ class CampeonatoService
                                       'penaltis_casa',
                                       'penaltis_visitante',
                                       'gols_visitante',
-                                      'time_visitante.nome as time_visitante')
+                                      'time_visitante.nome as time_visitante',
+                                      DB::raw("
+                                          CASE
+                                              WHEN partidas.gols_casa > partidas.gols_visitante THEN time_casa.nome
+                                              WHEN partidas.gols_visitante > partidas.gols_casa THEN time_visitante.nome
+                                              WHEN partidas.penaltis_casa > partidas.penaltis_visitante THEN time_casa.nome
+                                              WHEN partidas.penaltis_visitante > partidas.penaltis_casa THEN time_visitante.nome
+                                              ELSE 'Empate'
+                                          END as vencedor
+                                      "))
                              ->get();
 
         return [

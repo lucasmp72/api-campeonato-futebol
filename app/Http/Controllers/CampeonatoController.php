@@ -67,6 +67,12 @@ class CampeonatoController extends Controller
     {
         $resultado = $this->campeonatoService->simularCampeonato($id);
 
-        return response()->json(['message' => $resultado]);
+        return response()->json($resultado);
+    }
+
+    public function resultadosCampeonato(string $id)
+    {
+        $resultado = $this->campeonatoService->resultadosCampeonato($id);
+        return response()->json($resultado);
     }
 }

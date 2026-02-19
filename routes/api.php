@@ -16,4 +16,9 @@ Route::prefix('campeonatos')->group(function () {
         [CampeonatoController::class, 'simularCampeonato']
     );
 
+    Route::get(
+        'resultados-campeonato/{id}',
+        [CampeonatoController::class, 'resultadosCampeonato']
+    );
+
 });

@@ -13,7 +13,6 @@ class CampeonatoTime extends Model
     protected $fillable = [
         'campeonato_id',
         'time_id',
-        'ativo',
         'data_criacao'
     ];
 

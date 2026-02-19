@@ -37,9 +37,9 @@ class CampeonatoTimeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $campeonato_id)
     {
-        return $this->campeonatoTimeService->show($id);
+        return $this->campeonatoTimeService->show($campeonato_id);
     }
 
     /**

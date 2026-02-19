@@ -4,6 +4,9 @@ namespace App\Services;
 
 use Illuminate\Http\Request;
 use App\Models\CampeonatoTime;
+use Illuminate\Validation\ValidationException;
+
+use Illuminate\Support\Facades\DB;
 
 class CampeonatoTimeService
 {
@@ -54,12 +57,22 @@ class CampeonatoTimeService
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $campeonato_id)
     {
-        return CampeonatoTime::with(['campeonato', 'time'])
-            ->findOrFail($id);
-    }
+        $campeonato = DB::table('campeonatos')->find($campeonato_id);
 
+        $times = DB::table('campeonatos_times')
+                   ->join('times', 'time_id', '=', 'times.id')
+                   ->select('campeonatos_times.id as campeonatos_times_id', 'times.*')
+                   ->get();
+
+        return [
+            'id' => $campeonato->id,
+            'nome' => $campeonato->nome,
+            'times' => $times
+        ];
+    }
+    
     /**
      * Remove the specified resource from storage.
      */

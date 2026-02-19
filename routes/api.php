@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeController;
 use App\Http\Controllers\CampeonatoController;
+use App\Http\Controllers\CampeonatoTimeController;
 
 Route::apiResource('times', TimeController::class);
 Route::apiResource('campeonatos', CampeonatoController::class);
+Route::apiResource('campeonatos-times', CampeonatoTimeController::class);

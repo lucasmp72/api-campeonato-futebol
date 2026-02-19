@@ -4,16 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Campeonato;
+use App\Services\CampeonatoService;
 
 class CampeonatoController extends Controller
 {
+    private CampeonatoService $campeonatoService;
+
+    public function __construct(CampeonatoService $campeonatoService)
+    {
+        $this->campeonatoService = $campeonatoService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $campeonatos = Campeonato::all()->where("ativo", true);
+        $campeonatos = $this->campeonatoService->index();
         
         return $campeonatos;
     }
@@ -23,20 +30,7 @@ class CampeonatoController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nome' => 'required|string|max:255',
-            'ida_volta' => 'boolean',
-            'gols_fora' => 'boolean',
-            'pontos_corridos' => 'boolean'
-        ]);
-
-        $campeonato = Campeonato::create([
-            'nome' => $request->nome,
-            'ida_volta' => $request->idaVolta ?? false,
-            'gols_fora' => $request->golsFora ?? false,
-            'pontos_corridos' => $request->pontosCorridos ?? false,
-            'data_criacao' => now()
-        ]);
+        $campeonato = $this->campeonatoService->store($request);
 
         return response()->json($campeonato, 201);
     }
@@ -46,7 +40,7 @@ class CampeonatoController extends Controller
      */
     public function show(string $id)
     {
-        return Campeonato::where("id", "=", $id)->where("ativo", true)->get();
+        return $this->campeonatoService->show($id);
     }
 
     /**
@@ -54,16 +48,7 @@ class CampeonatoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $campeonato = Campeonato::findOrFail($id);
-
-        $request->validate([
-            'nome' => 'string|max:255',
-            'ida_volta' => 'boolean',
-            'gols_fora' => 'boolean',
-            'pontos_corridos' => 'boolean'
-        ]);
-
-        $campeonato->update($request->only(['nome']));
+        $campeonato = $this->campeonatoService->update($request, $id);
 
         return response()->json($campeonato);
     }
@@ -73,10 +58,15 @@ class CampeonatoController extends Controller
      */
     public function destroy(string $id)
     {
-        $campeonato = Campeonato::where('id', '=', $id)->where('ativo', true)->firstOrFail();
-        $campeonato->ativo = false;
-        $campeonato->update($campeonato->only(['ativo']));
-
+        $this->campeonatoService->destroy($id);
+        
         return response()->json(['message' => 'Time removido com sucesso']);
+    }
+
+    public function calculaCampeonato(string $id)
+    {
+        $resultado = $this->campeonatoService->calculaCampeonato($id);
+
+        return response()->json(['message' => $resultado]);
     }
 }

@@ -4,16 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Time;
+use App\Services\TimeService;
 
 class TimeController extends Controller
 {
+    private TimeService $timeService;
+
+    public function __construct(TimeService $timeService)
+    {
+        $this->timeService = $timeService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $times = Time::all()->where("ativo", true);
+        $times = $this->timeService->index();
         
         return $times;
     }
@@ -23,16 +30,7 @@ class TimeController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nome' => 'required|string|max:255',
-            'ativo' => 'boolean'
-        ]);
-
-        $time = Time::create([
-            'nome' => $request->nome,
-            'ativo' => $request->ativo ?? true,
-            'data_criacao' => now()
-        ]);
+        $time = $this->timeService->store($request);
 
         return response()->json($time, 201);
     }
@@ -42,7 +40,9 @@ class TimeController extends Controller
      */
     public function show(string $id)
     {
-        return Time::where("id", "=", $id)->where("ativo", true)->get();
+        $time = $this->timeService->show($id);
+
+        return $time;
     }
 
     /**
@@ -50,13 +50,7 @@ class TimeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $time = Time::findOrFail($id);
-
-        $request->validate([
-            'nome' => 'string|max:255'
-        ]);
-
-        $time->update($request->only(['nome']));
+        $time = $this->timeService->update($request, $id);
 
         return response()->json($time);
     }
@@ -66,10 +60,8 @@ class TimeController extends Controller
      */
     public function destroy(string $id)
     {
-        $time = Time::where('id', '=', $id)->where('ativo', true)->firstOrFail();
-        $time->ativo = false;
-        $time->update($time->only(['ativo']));
+        $this->timeService->destroy($id);
 
-        return response()->json(['message' => 'Time removido com sucesso']);
+        return response()->json(['message' => 'Campeonato removido com sucesso']);
     }
 }

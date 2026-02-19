@@ -12,12 +12,8 @@ class Campeonato extends Model
 
     protected $fillable = [
         'nome',
-        'ida_volta',
-        'gols_fora',
-        'pontos_corridos',
         'data_criacao',
         'ativo',
-        'finalizado'
     ];
 
     public function campeonatosTimes()

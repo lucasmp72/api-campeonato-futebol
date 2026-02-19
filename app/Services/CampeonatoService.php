@@ -23,17 +23,11 @@ class CampeonatoService
     public function store(Request $request)
     {
         $request->validate([
-            'nome' => 'required|string|max:255',
-            'ida_volta' => 'boolean',
-            'gols_fora' => 'boolean',
-            'pontos_corridos' => 'boolean'
+            'nome' => 'required|string|max:255'
         ]);
 
         $campeonato = Campeonato::create([
             'nome' => $request->nome,
-            'ida_volta' => $request->idaVolta ?? false,
-            'gols_fora' => $request->golsFora ?? false,
-            'pontos_corridos' => $request->pontosCorridos ?? false,
             'data_criacao' => now()
         ]);
 
@@ -50,10 +44,7 @@ class CampeonatoService
         $campeonato = Campeonato::findOrFail($id);
 
         $request->validate([
-            'nome' => 'string|max:255',
-            'ida_volta' => 'boolean',
-            'gols_fora' => 'boolean',
-            'pontos_corridos' => 'boolean'
+            'nome' => 'string|max:255'
         ]);
 
         $campeonato->update($request->only(['nome']));
@@ -69,16 +60,7 @@ class CampeonatoService
     }
 
     public function simularCampeonato(string $id)
-    {
-        $campeonato = Campeonato::findOrFail($id);
-
-        if($campeonato->finalizado)
-        {
-            throw ValidationException::withMessages([
-                    'mensagem' => 'Campeonato já finalizado.'
-                ]);
-        }
-        
+    {   
         $count = CampeonatoTime::where('campeonato_id', $id)->count();
 
         if($count < 8)
@@ -88,6 +70,18 @@ class CampeonatoService
                 ]);
         }
 
+        $partidasCampeonato = DB::table('partidas')
+                                ->where('campeonato_id', $id)
+                                ->get();
+        
+        if($partidasCampeonato->count() > 0)
+        {
+            foreach($partidasCampeonato as $partidaCampeonato)
+            {
+                DB::table('partidas')->where('id', $partidaCampeonato->id)->delete();
+            }
+        }
+        
         $timesParticipantes = DB::table('campeonatos_times')
                                 ->join('times', 'time_id', '=', 'times.id')
                                 ->select('times.*')
@@ -140,11 +134,7 @@ class CampeonatoService
 
         $this->calculaResultadoPartidas($partidasFinal);
 
-        DB::table('campeonatos')
-              ->where('id', $id)
-              ->update(['finalizado' => true]);
-
-        return 'Sucesso';
+        return $this->resultadosCampeonato($id);
     }
 
     public function sorteiaTimes($times, $fase_id, $campeonato_id)
@@ -258,5 +248,67 @@ class CampeonatoService
         $perdedores = $perdedoresCasa->union($perdedoresVisitante)->pluck('time_id');
 
         return $perdedores;
+    }
+
+    public function resultadosCampeonato($campeonato_id)
+    {
+        $resultadosQuartasFinais = DB::table('partidas')
+                                     ->join('times as time_casa', 'time_casa_id', '=', 'time_casa.id')
+                                     ->join('times as time_visitante', 'time_visitante_id', '=', 'time_visitante.id')
+                                     ->where('campeonato_id', $campeonato_id)
+                                     ->where('fase_id', 1)
+                                     ->select('time_casa.nome as time_casa',
+                                              'gols_casa',
+                                              'penaltis_casa',
+                                              'penaltis_visitante',
+                                              'gols_visitante',
+                                              'time_visitante.nome as time_visitante')
+                                     ->get();
+
+        $resultadosSemifinais = DB::table('partidas')
+                                  ->join('times as time_casa', 'time_casa_id', '=', 'time_casa.id')
+                                  ->join('times as time_visitante', 'time_visitante_id', '=', 'time_visitante.id')
+                                  ->where('campeonato_id', $campeonato_id)
+                                  ->where('fase_id', 2)
+                                  ->select('time_casa.nome as time_casa',
+                                          'gols_casa',
+                                          'penaltis_casa',
+                                          'penaltis_visitante',
+                                          'gols_visitante',
+                                          'time_visitante.nome as time_visitante')
+                                  ->get();
+
+        $resultadosTerceiroLugar = DB::table('partidas')
+                                     ->join('times as time_casa', 'time_casa_id', '=', 'time_casa.id')
+                                     ->join('times as time_visitante', 'time_visitante_id', '=', 'time_visitante.id')
+                                     ->where('campeonato_id', $campeonato_id)
+                                     ->where('fase_id', 3)
+                                     ->select('time_casa.nome as time_casa',
+                                              'gols_casa',
+                                              'penaltis_casa',
+                                              'penaltis_visitante',
+                                              'gols_visitante',
+                                              'time_visitante.nome as time_visitante')
+                                     ->get();
+
+        $resultadosFinal = DB::table('partidas')
+                             ->join('times as time_casa', 'time_casa_id', '=', 'time_casa.id')
+                             ->join('times as time_visitante', 'time_visitante_id', '=', 'time_visitante.id')
+                             ->where('campeonato_id', $campeonato_id)
+                             ->where('fase_id', 4)
+                             ->select('time_casa.nome as time_casa',
+                                      'gols_casa',
+                                      'penaltis_casa',
+                                      'penaltis_visitante',
+                                      'gols_visitante',
+                                      'time_visitante.nome as time_visitante')
+                             ->get();
+
+        return [
+            'resultadosQuartasFinais' => $resultadosQuartasFinais,
+            'resultadosSemifinais' => $resultadosSemifinais,
+            'resultadosTerceiroLugar' => $resultadosTerceiroLugar,
+            'resultadosFinal' => $resultadosFinal
+        ];
     }
 }

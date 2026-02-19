@@ -69,9 +69,4 @@ class CampeonatoController extends Controller
 
         return response()->json(['message' => $resultado]);
     }
-
-    public function resultadosCampeonato(string $id)
-    {
-
-    }
 }

@@ -8,3 +8,12 @@ use App\Http\Controllers\CampeonatoTimeController;
 Route::apiResource('times', TimeController::class);
 Route::apiResource('campeonatos', CampeonatoController::class);
 Route::apiResource('campeonatos-times', CampeonatoTimeController::class);
+
+Route::prefix('campeonatos')->group(function () {
+
+    Route::post(
+        'simular-campeonato/{id}',
+        [CampeonatoController::class, 'simularCampeonato']
+    );
+
+});

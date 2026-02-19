@@ -63,10 +63,15 @@ class CampeonatoController extends Controller
         return response()->json(['message' => 'Time removido com sucesso']);
     }
 
-    public function calculaCampeonato(string $id)
+    public function simularCampeonato(string $id)
     {
-        $resultado = $this->campeonatoService->calculaCampeonato($id);
+        $resultado = $this->campeonatoService->simularCampeonato($id);
 
         return response()->json(['message' => $resultado]);
+    }
+
+    public function resultadosCampeonato(string $id)
+    {
+
     }
 }

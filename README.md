@@ -83,7 +83,7 @@ O banco de dados está hospedado na AWS RDS (PostgreSQL).
 
 Estrutura Principal:
 
-## Tabela: campeonatos
+### Tabela: campeonatos
 
 * id (PK)
 
@@ -93,7 +93,7 @@ Estrutura Principal:
 
 * ativo (boolean)
 
-## Tabela: times
+### Tabela: times
 
 * id (PK)
 
@@ -103,7 +103,7 @@ Estrutura Principal:
 
 * ativo (boolean)
 
-## Tabela: campeonatos_times
+### Tabela: campeonatos_times
 
 * id (PK)
 
@@ -113,7 +113,7 @@ Estrutura Principal:
 
 * data_criacao (timestamp)
 
-## Tabela: partidas
+### Tabela: partidas
 
 * id (PK)
 
@@ -132,6 +132,16 @@ Estrutura Principal:
 * penaltis_visitante (integer)
 
 * fase_id (integer)
+
+* data_criacao (timestamp)
+
+* ativo (boolean)
+
+### Tabela: fases
+
+* id (PK)
+
+* nome (varchar)
 
 * data_criacao (timestamp)
 
